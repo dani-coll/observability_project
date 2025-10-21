@@ -1,0 +1,5 @@
+node_modules
+.github
+
+# Ignore environment files containing secrets
+.env

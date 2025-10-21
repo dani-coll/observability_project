@@ -1,0 +1,90 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+        cors:
+          allowed_origins:
+            - "http://localhost:3000"
+            - "http://localhost:8080"
+            - "*"
+          allowed_headers:
+            - "*"
+  
+  # File log receiver for Podman container logs
+  filelog:
+    include:
+      - /var/log/containers/*.log
+    start_at: beginning
+    include_file_path: true
+    include_file_name: false
+    operators:
+      # Parse container log file name to extract container info
+      - type: regex_parser
+        regex: '^/var/log/containers/(?P<container_name>[^\.]+)\.log$'
+        parse_from: attributes["log.file.path"]
+      # Add container name as resource attribute
+      - type: move
+        from: attributes.container_name
+        to: resource["container.name"]
+      # Add service name based on container name
+      - type: add
+        field: resource["service.name"]
+        value: EXPR(resource["container.name"])
+  
+exporters:
+  # Debug exporter to see what traces are being received
+  debug:
+    verbosity: detailed
+    
+  # Dynatrace exporter  
+  otlphttp:
+    endpoint: "https://ruu61410.live.dynatrace.com/api/v2/otlp"
+    headers:
+      Authorization: "Api-Token ${DT_API_TOKEN}"
+    timeout: 30s
+
+processors:
+  batch:
+    timeout: 10s
+    send_batch_size: 1024
+  
+  resource:
+    attributes:
+      - key: deployment.environment
+        value: "workshop"
+        action: insert
+      - key: service.namespace
+        value: "observability-demo"
+        action: insert
+  
+  # Filter processor to drop specific metrics by name
+  filter/drop_metrics:
+    metrics:
+      metric:
+        # Drop metrics matching these patterns
+        # Add metric names you want to drop here
+        # You can use regex patterns too
+        # - 'regexp.Match(name, "^unwanted_.*")'
+        # Or drop metrics with specific labels
+        # - 'HasLabel(resource.attributes, "unwanted_label")'
+
+service:
+  telemetry:
+    logs:
+      level: debug
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch, resource]
+      exporters: [debug, otlphttp]
+    metrics:
+      receivers: [otlp]
+      processors: [batch, resource, filter/drop_metrics]
+      exporters: [debug, otlphttp]
+    logs:
+      receivers: [otlp, filelog]
+      processors: [batch, resource]
+      exporters: [debug, otlphttp]

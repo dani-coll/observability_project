@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Observability Demo - Load Balancer Testing</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header {
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-healthy { background-color: #4CAF50; }
+        .status-warning { background-color: #FF9800; }
+        .status-error { background-color: #f44336; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Observability Demo - Load Balancer Testing</h1>
+            <p>This application demonstrates load balancing, failure scenarios, and observability patterns with OpenTelemetry distributed tracing.</p>
+            <div>
+                <span class="status-indicator status-healthy"></span>
+                <span>Load Balancer: <strong>http://localhost:8080</strong></span>
+            </div>
+        </div>
+        <div id="root">Loading...</div>
+    </div>
+    
+    <!-- Vite will inject the module script here -->
+    <script type="module" src="/main.jsx"></script>
+</body>
+</html>

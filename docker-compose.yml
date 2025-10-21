@@ -1,0 +1,129 @@
+
+services:
+  frontend:
+    image: node:18
+    container_name: frontend
+    working_dir: /workspace/frontend
+    volumes:
+      - ./frontend:/workspace/frontend
+      - /workspace/frontend/node_modules
+      - container_logs:/var/log/containers
+    ports:
+      - "3000:3000"
+    command: >
+      sh -c "npm install && npm run start 2>&1 | tee /var/log/containers/frontend.log"
+    depends_on:
+      - loadbalancer
+      - otel-collector
+    environment:
+      - PODMAN=true
+      - VITE_SERVICE_NAME=frontend-service-new
+
+  loadbalancer:
+    image: node:18
+    container_name: loadbalancer
+    working_dir: /workspace/loadbalancer
+    volumes:
+      - ./loadbalancer:/workspace/loadbalancer
+      - /workspace/loadbalancer/node_modules
+      - container_logs:/var/log/containers
+    ports:
+      - "8080:8080"
+    command: >
+      sh -c "npm install && npm start 2>&1 | tee /var/log/containers/loadbalancer.log"
+    depends_on:
+      - backend1
+      - backend2
+      - otel-collector
+    environment:
+      - PODMAN=true
+      - SERVICE_NAME=loadbalancer-service-new
+      - SERVICE_INSTANCE_ID=loadbalancer1
+      - SERVICE_VERSION=1.0.0
+      - OTEL_RESOURCE_ATTRIBUTES=service.instance.id=loadbalancer1
+
+  backend1:
+    image: node:18
+    container_name: backend1
+    working_dir: /workspace/backend
+    volumes:
+      - ./backend:/workspace/backend
+      - container_logs:/var/log/containers
+    ports:
+      - "4000:4000"
+    command: >
+      sh -c "npm install && npm start 2>&1 | tee /var/log/containers/backend1.log"
+    environment:
+      - DB_HOST=database
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=observability
+      - PODMAN=true
+      - SERVICE_NAME=backend-service-new
+      - SERVICE_INSTANCE_ID=backend1
+      - SERVICE_VERSION=1.0.0
+      - OTEL_RESOURCE_ATTRIBUTES=service.instance.id=backend1
+    depends_on:
+      - database
+
+  backend2:
+    image: node:18
+    container_name: backend2
+    working_dir: /workspace/backend
+    volumes:
+      - ./backend:/workspace/backend
+      - container_logs:/var/log/containers
+    ports:
+      - "4001:4000"
+    command: >
+      sh -c "npm install && npm start 2>&1 | tee /var/log/containers/backend2.log"
+    environment:
+      - DB_HOST=database
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=observability
+      - PODMAN=true
+      - SERVICE_NAME=backend-service-new
+      - SERVICE_INSTANCE_ID=backend2
+      - SERVICE_VERSION=1.0.0
+      - OTEL_RESOURCE_ATTRIBUTES=service.instance.id=backend2
+    depends_on:
+      - database
+
+  database:
+    image: postgres:15
+    container_name: database
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: observability
+      PODMAN: true
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - container_logs:/var/log/containers
+    command: >
+      bash -c "docker-entrypoint.sh postgres 2>&1 | tee /var/log/containers/database.log"
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: otel-collector
+    ports:
+      - "4317:4317" # OTLP gRPC
+      - "55681:55681" # OTLP HTTP (legacy)
+      - "4318:4318" # OTLP HTTP
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+      # Mount container logs directory for filelog receiver
+      - container_logs:/var/log/containers:ro
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    environment:
+      - PODMAN=true
+      - DT_API_TOKEN=${DT_API_TOKEN}
+
+volumes:
+  postgres_data:
+  container_logs:

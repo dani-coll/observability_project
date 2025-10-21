@@ -1,0 +1,20 @@
+{
+  "name": "Observability Project",
+  "dockerComposeFile": ["../docker-compose.yml"],
+  "service": "backend",
+  "workspaceFolder": "/workspace",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "zsh"
+      },
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode"
+      ]
+    }
+  },
+  "postCreateCommand": "npm install --prefix backend && npm install --prefix frontend",
+  "forwardPorts": [3000, 8080],
+  "remoteUser": "vscode"
+}
