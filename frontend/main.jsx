@@ -1,7 +1,5 @@
-// Import OpenTelemetry first to ensure instrumentation is registered
 import './tracing.js';
 
-// Import React and ReactDOM
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 
@@ -19,12 +17,6 @@ function App() {
   const makeRequest = async (endpoint, description) => {
     setIsLoading(true);
     const startTime = Date.now();
-    
-    // OpenTelemetry FetchInstrumentation automatically:
-    // 1. Creates a span for this fetch request
-    // 2. Adds W3C traceparent header for distributed tracing
-    // 3. Records timing, status code, and other HTTP attributes
-    // 4. Exports the span to the OTLP collector
     
     console.log('🔗 Making request to:', endpoint, '- OpenTelemetry will auto-instrument this');
     
@@ -159,7 +151,6 @@ function App() {
               <div 
                 key={index} 
                 style={{ 
-                  marginBottom: '5px',
                   padding: '5px',
                   backgroundColor: log.success ? '#e8f5e8' : '#ffeaea',
                   borderRadius: '3px',

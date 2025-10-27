@@ -17,7 +17,7 @@ services:
       - otel-collector
     environment:
       - PODMAN=true
-      - VITE_SERVICE_NAME=frontend-service-new
+      - VITE_SERVICE_NAME=frontend-service-new2
 
   loadbalancer:
     image: node:18
@@ -37,7 +37,7 @@ services:
       - otel-collector
     environment:
       - PODMAN=true
-      - SERVICE_NAME=loadbalancer-service-new
+      - SERVICE_NAME=loadbalancer-service-new2
       - SERVICE_INSTANCE_ID=loadbalancer1
       - SERVICE_VERSION=1.0.0
       - OTEL_RESOURCE_ATTRIBUTES=service.instance.id=loadbalancer1
@@ -60,7 +60,7 @@ services:
       - DB_PASSWORD=postgres
       - DB_NAME=observability
       - PODMAN=true
-      - SERVICE_NAME=backend-service-new
+      - SERVICE_NAME=backend-service-new2
       - SERVICE_INSTANCE_ID=backend1
       - SERVICE_VERSION=1.0.0
       - OTEL_RESOURCE_ATTRIBUTES=service.instance.id=backend1
@@ -85,7 +85,7 @@ services:
       - DB_PASSWORD=postgres
       - DB_NAME=observability
       - PODMAN=true
-      - SERVICE_NAME=backend-service-new
+      - SERVICE_NAME=backend-service-new2
       - SERVICE_INSTANCE_ID=backend2
       - SERVICE_VERSION=1.0.0
       - OTEL_RESOURCE_ATTRIBUTES=service.instance.id=backend2

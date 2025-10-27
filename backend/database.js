@@ -1,8 +1,4 @@
 const { Pool } = require('pg');
-const { trace } = require('@opentelemetry/api');
-
-// Get tracer for database operations
-const tracer = trace.getTracer(process.env.SERVICE_NAME, '1.0.0');
 
 // Database configuration from environment variables
 const dbConfig = {
@@ -34,22 +30,8 @@ pool.on('error', (err, client) => {
   console.error('❌ Unexpected error on idle database client:', err);
 });
 
-// Custom query function with OpenTelemetry tracing
 async function query(text, params = []) {
   const operation = extractOperation(text);
-  const spanName = `db.${operation.toLowerCase()}`;
-  
-  const span = tracer.startSpan(spanName, {
-    kind: 3, // CLIENT span kind
-    attributes: {
-      'db.system': 'postgresql',
-      'db.name': dbConfig.database,
-      'db.statement': text,
-      'db.operation': operation,
-      'db.sql.table': extractTableName(text),
-      'service.name': 'backend-service'
-    }
-  });
 
   const client = await pool.connect();
   
@@ -60,29 +42,15 @@ async function query(text, params = []) {
     const result = await client.query(text, params);
     const duration = Date.now() - start;
     
-    // Set successful span attributes
-    span.setAttributes({
-      'db.rows_affected': result.rowCount || 0,
-      'db.duration_ms': duration
-    });
-    
-    span.setStatus({ code: 1 }); // OK
     console.log(`✅ Query completed in ${duration}ms, ${result.rowCount || 0} rows affected`);
     
     return result;
   } catch (error) {
-    // Record error in span
-    span.recordException(error);
-    span.setStatus({ 
-      code: 2, // ERROR
-      message: error.message 
-    });
-    
+
     console.error('❌ Database query error:', error.message);
     throw error;
   } finally {
     client.release();
-    span.end();
   }
 }
 
@@ -130,15 +98,6 @@ function extractTableName(sql) {
 
 // Initialize database schema
 async function initializeDatabase() {
-  const span = tracer.startSpan('db.schema_initialization', {
-    attributes: {
-      'db.system': 'postgresql',
-      'db.name': dbConfig.database,
-      'db.operation': 'SCHEMA_INIT',
-      'service.name': 'backend-service'
-    }
-  });
-  
   try {
     console.log('🔧 Initializing database schema...');
     
@@ -186,40 +145,24 @@ async function initializeDatabase() {
       `);
     }
     
-    span.setStatus({ code: 1 }); // OK
     console.log('✅ Database initialized successfully');
     
   } catch (error) {
-    span.recordException(error);
-    span.setStatus({ code: 2, message: error.message });
     console.error('❌ Database initialization failed:', error.message);
     throw error;
   } finally {
-    span.end();
   }
 }
 
 // Health check function
 async function healthCheck() {
-  const span = tracer.startSpan('db.health_check', {
-    attributes: {
-      'db.system': 'postgresql',
-      'db.name': dbConfig.database,
-      'db.operation': 'HEALTH_CHECK',
-      'service.name': 'backend-service'
-    }
-  });
   
   try {
     await query('SELECT 1');
-    span.setStatus({ code: 1 });
     return { status: 'healthy', database: 'connected' };
   } catch (error) {
-    span.recordException(error);
-    span.setStatus({ code: 2, message: error.message });
     return { status: 'unhealthy', database: 'disconnected', error: error.message };
   } finally {
-    span.end();
   }
 }
 
