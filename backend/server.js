@@ -189,7 +189,8 @@ app.get('/api/backend-specific', (req, res) => {
   
   res.json({
     message: 'Success from backend1',
-    container: container,
+    container,
+    timestamp,
     data: { specialData: 'Only backend1 can serve this' }
   });
 });
