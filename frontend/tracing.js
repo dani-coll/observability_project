@@ -8,15 +8,16 @@ import { ZoneContextManager } from '@opentelemetry/context-zone';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-web';
 import { Resource } from '@opentelemetry/resources';
-import { SEMRESATTRS_SERVICE_NAME, SEMRESATTRS_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
+import { SEMRESATTRS_SERVICE_NAME, SEMRESATTRS_SERVICE_VERSION, SEMRESATTRS_DEPLOYMENT_ENVIRONMENT } from '@opentelemetry/semantic-conventions';
 import { W3CTraceContextPropagator } from '@opentelemetry/core';
 
 console.log('🔧 Initializing OpenTelemetry Web SDK...');
 
 // Create resource with service information
 const resource = new Resource({
-      [SEMRESATTRS_SERVICE_NAME]: import.meta.env.VITE_SERVICE_NAME,
+  [SEMRESATTRS_SERVICE_NAME]: import.meta.env.VITE_SERVICE_NAME,
   [SEMRESATTRS_SERVICE_VERSION]: '1.0.0',
+  [SEMRESATTRS_DEPLOYMENT_ENVIRONMENT]: import.meta.env.VITE_NAMESPACE || 'workshop',
 });
 
 // Create tracer provider

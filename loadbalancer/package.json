@@ -4,7 +4,7 @@
   "description": "OpenTelemetry-instrumented load balancer for observability demo",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node --require ./tracing.js server.js",
     "dev": "nodemon server.js"
   },
   "dependencies": {

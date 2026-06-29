@@ -39,11 +39,11 @@ exporters:
   debug:
     verbosity: detailed
     
-  # Dynatrace exporter  
+  # Dynatrace exporter
   otlphttp:
-    endpoint: "https://ruu61410.live.dynatrace.com/api/v2/otlp"
+    endpoint: "${OTEL_API_URL}"
     headers:
-      Authorization: "Api-Token ${DT_API_TOKEN}"
+      Authorization: "Api-Token ${OTEL_API_TOKEN}"
     timeout: 30s
 
 processors:
@@ -60,17 +60,6 @@ processors:
         value: "observability-demo"
         action: insert
   
-  # Filter processor to drop specific metrics by name
-  filter/drop_metrics:
-    metrics:
-      metric:
-        # Drop metrics matching these patterns
-        # Add metric names you want to drop here
-        # You can use regex patterns too
-        # - 'regexp.Match(name, "^unwanted_.*")'
-        # Or drop metrics with specific labels
-        # - 'HasLabel(resource.attributes, "unwanted_label")'
-
 service:
   telemetry:
     logs:
@@ -82,7 +71,7 @@ service:
       exporters: [debug, otlphttp]
     metrics:
       receivers: [otlp]
-      processors: [batch, resource, filter/drop_metrics]
+      processors: [batch, resource]
       exporters: [debug, otlphttp]
     logs:
       receivers: [otlp, filelog]
