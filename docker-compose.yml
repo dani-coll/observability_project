@@ -1,7 +1,7 @@
 
 services:
   frontend:
-    image: node:18
+    image: node:18-alpine
     container_name: frontend
     working_dir: /workspace/frontend
     volumes:
@@ -21,7 +21,7 @@ services:
       - VITE_NAMESPACE=${NAMESPACE:-workshop}
 
   loadbalancer:
-    image: node:18
+    image: node:18-alpine
     container_name: loadbalancer
     working_dir: /workspace/loadbalancer
     volumes:
@@ -44,7 +44,7 @@ services:
       - OTEL_RESOURCE_ATTRIBUTES=service.instance.id=loadbalancer1,deployment.environment=${NAMESPACE:-workshop}
 
   backend1:
-    image: node:18
+    image: node:18-alpine
     container_name: backend1
     working_dir: /workspace/backend
     volumes:
@@ -69,7 +69,7 @@ services:
       - database
 
   backend2:
-    image: node:18
+    image: node:18-alpine
     container_name: backend2
     working_dir: /workspace/backend
     volumes:
@@ -94,7 +94,7 @@ services:
       - database
 
   database:
-    image: postgres:15
+    image: postgres:15-alpine
     container_name: database
     environment:
       POSTGRES_USER: postgres
@@ -107,7 +107,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - container_logs:/var/log/containers
     command: >
-      bash -c "docker-entrypoint.sh postgres 2>&1 | tee /var/log/containers/database.log"
+      sh -c "docker-entrypoint.sh postgres 2>&1 | tee /var/log/containers/database.log"
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:latest
