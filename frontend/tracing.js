@@ -27,7 +27,7 @@ const provider = new WebTracerProvider({
 
 // Configure OTLP exporter to send traces to collector
 const exporter = new OTLPTraceExporter({
-  url: 'http://localhost:4318/v1/traces',
+  url: 'http://localhost:4928/v1/traces',
   headers: {},
 });
 
@@ -64,27 +64,27 @@ registerInstrumentations({
       
       // Automatically propagate trace context headers to these URLs
       propagateTraceHeaderCorsUrls: [
-        /localhost:8080/,    // Load balancer
-        /localhost:4000/,    // Backend 1
-        /localhost:4001/,    // Backend 2
-        /localhost:4318/,    // OTEL collector
+        /localhost:8642/,    // Load balancer
+        /localhost:4931/,    // Backend 1
+        /localhost:4932/,    // Backend 2
+        /localhost:4928/,    // OTEL collector
       ],
-      
+
       // Clear timing resources to prevent memory leaks
       clearTimingResources: true,
-      
+
       // Ignore collector requests to avoid infinite loops
       ignoreUrls: [
-        /localhost:4318\/v1\/traces/,
+        /localhost:4928\/v1\/traces/,
       ],
     }),
-    
+
     // Instrument XMLHttpRequest as fallback
     new XMLHttpRequestInstrumentation({
       propagateTraceHeaderCorsUrls: [
-        /localhost:8080/,
-        /localhost:4000/,
-        /localhost:4001/,
+        /localhost:8642/,
+        /localhost:4931/,
+        /localhost:4932/,
       ],
     }),
   ],

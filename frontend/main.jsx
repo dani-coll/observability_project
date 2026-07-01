@@ -21,7 +21,7 @@ function App() {
     console.log('🔗 Making request to:', endpoint, '- OpenTelemetry will auto-instrument this');
     
     try {
-      const response = await fetch(`http://localhost:8080${endpoint}`, {
+      const response = await fetch(`http://localhost:8642${endpoint}`, {
         headers: {
           'Content-Type': 'application/json',
           // No need to manually add trace headers - FetchInstrumentation handles it!

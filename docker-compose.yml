@@ -9,7 +9,7 @@ services:
       - /workspace/frontend/node_modules
       - container_logs:/var/log/containers
     ports:
-      - "3000:3000"
+      - "3737:3000"
     command: >
       sh -c "npm install && npm run start 2>&1 | tee /var/log/containers/frontend.log"
     depends_on:
@@ -29,7 +29,7 @@ services:
       - /workspace/loadbalancer/node_modules
       - container_logs:/var/log/containers
     ports:
-      - "8080:8080"
+      - "8642:8080"
     command: >
       sh -c "npm install && npm start 2>&1 | tee /var/log/containers/loadbalancer.log"
     depends_on:
@@ -51,7 +51,7 @@ services:
       - ./backend:/workspace/backend
       - container_logs:/var/log/containers
     ports:
-      - "4000:4000"
+      - "4931:4000"
     command: >
       sh -c "npm install && npm start 2>&1 | tee /var/log/containers/backend1.log"
     environment:
@@ -76,7 +76,7 @@ services:
       - ./backend:/workspace/backend
       - container_logs:/var/log/containers
     ports:
-      - "4001:4000"
+      - "4932:4000"
     command: >
       sh -c "npm install && npm start 2>&1 | tee /var/log/containers/backend2.log"
     environment:
@@ -102,7 +102,7 @@ services:
       POSTGRES_DB: observability
       PODMAN: true
     ports:
-      - "5432:5432"
+      - "5942:5432"
     volumes:
       - postgres_data:/var/lib/postgresql
       - container_logs:/var/log/containers
@@ -113,9 +113,9 @@ services:
     image: otel/opentelemetry-collector-contrib:latest
     container_name: otel-collector
     ports:
-      - "4317:4317" # OTLP gRPC
-      - "55681:55681" # OTLP HTTP (legacy)
-      - "4318:4318" # OTLP HTTP
+      - "4927:4317" # OTLP gRPC
+      - "55692:55681" # OTLP HTTP (legacy)
+      - "4928:4318" # OTLP HTTP
     volumes:
       - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
       # Mount container logs directory for filelog receiver

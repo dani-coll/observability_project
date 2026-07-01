@@ -10,11 +10,11 @@ Frontend (React) → Load Balancer (Node.js) → Backend Instances (Node.js) →
 
 ## 🚀 Services
 
-- **frontend**: React app with testing interface (Port 3000)
-- **loadbalancer**: Node.js load balancer (Port 8080)
-- **backend1**: Express API instance 1 (Port 4000)
-- **backend2**: Express API instance 2 (Port 4001)
-- **database**: PostgreSQL database (Port 5432)
+- **frontend**: React app with testing interface (Port 3737)
+- **loadbalancer**: Node.js load balancer (Port 8642)
+- **backend1**: Express API instance 1 (Port 4931)
+- **backend2**: Express API instance 2 (Port 4932)
+- **database**: PostgreSQL database (Port 5942)
 
 ## 🎯 Key Features for Observability Learning
 
@@ -48,14 +48,14 @@ Frontend (React) → Load Balancer (Node.js) → Backend Instances (Node.js) →
    ```
 
 4. **Access the services**:
-   - **Frontend**: [http://localhost:3000](http://localhost:3000) - Interactive testing interface
-   - **Load Balancer**: [http://localhost:8080](http://localhost:8080) - Backend services via LB
-   - **Direct Backend Access**: [http://localhost:4000](http://localhost:4000) and [http://localhost:4001](http://localhost:4001)
+   - **Frontend**: [http://localhost:3737](http://localhost:3737) - Interactive testing interface
+   - **Load Balancer**: [http://localhost:8642](http://localhost:8642) - Backend services via LB
+   - **Direct Backend Access**: [http://localhost:4931](http://localhost:4931) and [http://localhost:4932](http://localhost:4932)
 
 ## 🧪 Testing Failure Scenarios
 
 ### Option 1: Web Interface
-Visit [http://localhost:3000](http://localhost:3000) for an interactive interface with buttons to test:
+Visit [http://localhost:3737](http://localhost:3737) for an interactive interface with buttons to test:
 - Basic load balancing distribution
 - Health checks for all services
 - Random failure scenarios
@@ -83,16 +83,16 @@ This provides comprehensive testing scenarios:
 ### Option 3: Manual API Testing
 ```bash
 # Test health checks
-curl http://localhost:8080/health
-curl http://localhost:8080/lb-health
+curl http://localhost:8642/health
+curl http://localhost:8642/lb-health
 
 # Test failure scenarios
-curl http://localhost:8080/api/data
-curl http://localhost:8080/api/backend-specific
-curl http://localhost:8080/api/stress
+curl http://localhost:8642/api/data
+curl http://localhost:8642/api/backend-specific
+curl http://localhost:8642/api/stress
 
 # Simulate backend failure
-curl -X POST http://localhost:8080/api/kill
+curl -X POST http://localhost:8642/api/kill
 ```
 
 
