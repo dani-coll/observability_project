@@ -1,4 +1,5 @@
 const { Pool } = require('pg');
+const { trace, SpanKind, SpanStatusCode } = require('@opentelemetry/api');
 
 // Database configuration from environment variables
 const dbConfig = {
@@ -32,26 +33,44 @@ pool.on('error', (err, client) => {
 
 async function query(text, params = []) {
   const operation = extractOperation(text);
+  const table = extractTableName(text);
+  const tracer = trace.getTracer('database');
 
-  const client = await pool.connect();
-  
-  try {
-    const start = Date.now();
-    console.log(`📊 Executing query: ${text.substring(0, 100)}${text.length > 100 ? '...' : ''}`);
-    
-    const result = await client.query(text, params);
-    const duration = Date.now() - start;
-    
-    console.log(`✅ Query completed in ${duration}ms, ${result.rowCount || 0} rows affected`);
-    
-    return result;
-  } catch (error) {
+  return tracer.startActiveSpan(
+    `${operation} ${table}`,
+    {
+      kind: SpanKind.CLIENT,
+      attributes: {
+        'db.system': 'postgresql',
+        'db.operation': operation,
+        'db.sql.table': table,
+        'db.statement': text.trim().substring(0, 200),
+      },
+    },
+    async (span) => {
+      const client = await pool.connect();
+      try {
+        const start = Date.now();
+        console.log(`📊 Executing query: ${text.substring(0, 100)}${text.length > 100 ? '...' : ''}`);
 
-    console.error('❌ Database query error:', error.message);
-    throw error;
-  } finally {
-    client.release();
-  }
+        const result = await client.query(text, params);
+        const duration = Date.now() - start;
+
+        console.log(`✅ Query completed in ${duration}ms, ${result.rowCount || 0} rows affected`);
+        span.setAttribute('db.rows_affected', result.rowCount || 0);
+
+        return result;
+      } catch (error) {
+        console.error('❌ Database query error:', error.message);
+        span.recordException(error);
+        span.setStatus({ code: SpanStatusCode.ERROR, message: error.message });
+        throw error;
+      } finally {
+        client.release();
+        span.end();
+      }
+    }
+  );
 }
 
 // Helper function to extract operation from SQL
