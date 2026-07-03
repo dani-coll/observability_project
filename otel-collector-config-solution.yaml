@@ -37,13 +37,12 @@ exporters:
   debug:
     verbosity: detailed
     
-  # TODO: Exercise — add the Dynatrace exporter here
   # Dynatrace exporter
-  # otlphttp:
-  #   endpoint: "${OTEL_API_URL}"
-  #   headers:
-  #     Authorization: "Api-Token ${OTEL_API_TOKEN}"
-  #   timeout: 30s
+  otlphttp:
+    endpoint: "${OTEL_API_URL}"
+    headers:
+      Authorization: "Api-Token ${OTEL_API_TOKEN}"
+    timeout: 30s
 
 processors:
   batch:
@@ -68,12 +67,11 @@ service:
       receivers: [otlp]
       processors: [batch, resource]
       exporters: [debug, otlphttp]
-    # TODO: Exercise — add metrics and logs pipelines below
-    # metrics:
-    #   receivers: [otlp]
-    #   processors: [batch, resource]
-    #   exporters: [debug, otlphttp]
-    # logs:
-    #   receivers: [otlp, filelog]
-    #   processors: [batch, resource]
-    #   exporters: [debug, otlphttp]
+    metrics:
+      receivers: [otlp]
+      processors: [batch, resource]
+      exporters: [debug, otlphttp]
+    logs:
+      receivers: [otlp, filelog]
+      processors: [batch, resource]
+      exporters: [debug, otlphttp]
